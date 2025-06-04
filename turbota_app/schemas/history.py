@@ -1,6 +1,12 @@
 from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
-class UserMessage(BaseModel):
+class MessageIn(BaseModel):
     user_id: int
-    message: str
-    reply: str
+    text: str
+    answer: str
+
+class MessageOut(MessageIn):
+    id: int
+    created_at: datetime
