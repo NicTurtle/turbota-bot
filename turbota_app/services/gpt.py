@@ -13,7 +13,7 @@ SYSTEM_PROMPT = (
 )
 
 async def ask_gpt(prompt: str, history: list[MessageOut], user_id: int) -> str:
-    # 1. Системне повідомлення + контекст памʼяті
+    # 1. System prompt with memory context
     context_memory = await get_context_memory(user_id)
     system_prompt = SYSTEM_PROMPT
     if context_memory.strip():
@@ -21,15 +21,15 @@ async def ask_gpt(prompt: str, history: list[MessageOut], user_id: int) -> str:
 
     messages = [{"role": "system", "content": system_prompt}]
 
-    # 2. Додаємо історію повідомлень
+    # 2. Add previous messages
     for msg in reversed(history):
         messages.append({"role": "user", "content": msg.text})
         messages.append({"role": "assistant", "content": msg.answer})
 
-    # 3. Поточне повідомлення користувача
+    # 3. Current user message
     messages.append({"role": "user", "content": prompt})
 
-    # 4. Виклик OpenAI
+    # 4. OpenAI request
     response = await client.chat.completions.create(
         model="gpt-4o",
         messages=messages,

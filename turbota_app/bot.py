@@ -24,27 +24,27 @@ async def handle_message(message: Message):
     user_id = message.from_user.id
     user_input = message.text
 
-    # 1. Завантажуємо історію
+    # 1. Load conversation history
     history = await get_last_messages(user_id=user_id, limit=50)
 
-    # 2. GPT-відповідь
+    # 2. Get GPT response
     gpt_answer = await ask_gpt(user_input, history, user_id)
 
-    # 3. Збереження
+    # 3. Save the pair
     await save_message(MessageIn(
         user_id=user_id,
         text=user_input,
         answer=gpt_answer
     ))
 
-    # 4. Оновлення памʼяті (тільки якщо ≥ 10 пар)
-    if len(history) >= 20:
+    # 4. Update memory when we have at least 10 pairs
+    if len(history) + 1 >= 10:
         await update_memory(user_id)
 
-    # 5. Відповідь
+    # 5. Send reply
     await message.answer(gpt_answer)
 
-    # DEBUG: вывод памяти из context_summary
+    # DEBUG: show stored memory
     memory_text = await get_context_memory(user_id)
     print(f"\n===== [DEBUG for {user_id}] =====")
     print(f"[HISTORY LEN] {len(history)}")

@@ -9,10 +9,18 @@ client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
 # Системні промпти українською
 MEMORY_PROMPT = (
-    "Проаналізуй повідомлення користувача й сгенеруй 2 речі:\n"
-    "1. summary — стисле резюме всіх тем, які обговорювались.\n"
-    "2. biography — факти про користувача, які він повідомив.\n"
-    "Відповідь надай у форматі JSON: {\"summary\": \"...\", \"biography\": \"...\"}"
+    "Ти — уважний та емпатичний штучний інтелект. "
+    "На основі діалогу з користувачем сформуй два блоки:\n\n"
+    "1. \"biography\" — якомога повніший опис користувача. "
+    "Включи всю інформацію, яку вдалося дізнатися: ім’я (якщо є), вік, стать, місце проживання, професія, звички, захоплення, емоційний стан, пережитий досвід, плани, цінності, родинні стосунки, проблеми, мрії — усе, що може бути важливим для подальшої розмови.\n\n"
+    "2. \"summary\" — перелік усіх важливих тем, які обговорювалися з користувачем, з коротким змістом кожної теми. "
+    "Виділи ключові ідеї, потреби та зміни в настрої або контексті.\n\n"
+    "Формат відповіді — суворо у вигляді JSON-об'єкта:\n"
+    "{\n"
+    "  \"biography\": \"...\",\n"
+    "  \"summary\": \"...\"\n"
+    "}\n\n"
+    "Пиши чітко, зрозуміло, без вигаданих фактів. Не скорочуй інформацію — збережи максимум деталей."
 )
 
 async def summarize_chat(messages: list[MessageOut]) -> tuple[str, str]:
@@ -43,6 +51,7 @@ async def summarize_chat(messages: list[MessageOut]) -> tuple[str, str]:
 
     return summary, biography
 
+
 async def get_context_memory(user_id: int) -> str:
     db = await get_db()
     try:
@@ -58,6 +67,7 @@ async def get_context_memory(user_id: int) -> str:
     finally:
         await db.close()
 
+
 async def update_memory(user_id: int):
     db = await get_db()
     try:
@@ -67,28 +77,30 @@ async def update_memory(user_id: int):
         )
         rows = await cursor.fetchall()
 
-        if len(rows) < 20:
-            return  # менше 10 пар — не стискаємо
+        if len(rows) < 10:
+            return  # less than 10 pairs - skip summarization
 
-        # Беремо 10 повних пар (20 повідомлень)
-        full_pairs = rows[-20:]
+        # Take last 10 complete pairs
+        full_pairs = rows[-10:]
         messages = [MessageOut(**dict(zip([col[0] for col in cursor.description], row))) for row in full_pairs]
 
         summary, biography = await summarize_chat(messages)
 
-        await db.execute(
-            """
-            INSERT INTO context_summary (user_id, summary, biography, updated_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(user_id) DO UPDATE SET 
-                summary = excluded.summary,
-                biography = excluded.biography,
-                updated_at = excluded.updated_at
-            """,
-            (user_id, summary, biography, datetime.utcnow())
-        )
+        # Skip update if summarization failed
+        if summary or biography:
+            await db.execute(
+                """
+                INSERT INTO context_summary (user_id, summary, biography, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    summary = excluded.summary,
+                    biography = excluded.biography,
+                    updated_at = excluded.updated_at
+                """,
+                (user_id, summary, biography, datetime.utcnow())
+            )
 
-        # Залишаємо тільки останні 6 повідомлень (3 пари)
+        # Keep only the last 6 entries (3 pairs)
         keep_ids = [row[0] for row in rows[-6:]]
         placeholders = ','.join('?' for _ in keep_ids)
         await db.execute(

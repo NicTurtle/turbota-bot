@@ -3,6 +3,7 @@ from schemas.gpt import GPTResponse, GPTRequest
 from schemas.history import MessageIn, MessageOut
 from services.gpt import ask_gpt
 from services.history import save_message, get_last_messages
+from services.memory import update_memory
 from fastapi import Query
 from typing import List
 
@@ -14,7 +15,7 @@ async def root():
 
 @router.post("/ask")
 async def ask_gpt_api(message: MessageIn):
-    history = await get_last_messages(user_id=message.user_id)  # убрали limit
+    history = await get_last_messages(user_id=message.user_id, limit=50)
     answer = await ask_gpt(message.text, history, message.user_id)
 
     await save_message(MessageIn(
@@ -22,6 +23,9 @@ async def ask_gpt_api(message: MessageIn):
         text=message.text,
         answer=answer
     ))
+
+    if len(history) + 1 >= 10:
+        await update_memory(message.user_id)
 
     return {"answer": answer}
 
