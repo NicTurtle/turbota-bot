@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
-from turbota_app.bot import start_bot  # обновлённый импорт
-from turbota_app.routers import base
+from bot import start_bot
+from routers import base
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

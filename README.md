@@ -46,7 +46,7 @@ TurbotaBot connects GPT-based intelligence with Telegram to offer 24/7 empathy-d
 
 4. Run the bot locally:
     ```bash
-    uvicorn main:app --reload
+    uvicorn turbota_app.main:app --reload
     ```
 
 ### 📌 Disclaimer

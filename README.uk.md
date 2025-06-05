@@ -46,7 +46,7 @@
 
 4. Запустіть локально:
     ```bash
-    uvicorn main:app --reload
+    uvicorn turbota_app.main:app --reload 
     ```
 
 ### 📌 Увага
