@@ -58,6 +58,7 @@ async def get_context_memory(user_id: int) -> str:
     finally:
         await db.close()
 
+
 async def update_memory(user_id: int):
     db = await get_db()
     try:
@@ -67,28 +68,30 @@ async def update_memory(user_id: int):
         )
         rows = await cursor.fetchall()
 
-        if len(rows) < 20:
-            return  # менше 10 пар — не стискаємо
+        if len(rows) < 10:
+            return  # less than 10 pairs - skip summarization
 
-        # Беремо 10 повних пар (20 повідомлень)
-        full_pairs = rows[-20:]
+        # Take last 10 complete pairs
+        full_pairs = rows[-10:]
         messages = [MessageOut(**dict(zip([col[0] for col in cursor.description], row))) for row in full_pairs]
 
         summary, biography = await summarize_chat(messages)
 
-        await db.execute(
-            """
-            INSERT INTO context_summary (user_id, summary, biography, updated_at)
-            VALUES (?, ?, ?, ?)
-            ON CONFLICT(user_id) DO UPDATE SET 
-                summary = excluded.summary,
-                biography = excluded.biography,
-                updated_at = excluded.updated_at
-            """,
-            (user_id, summary, biography, datetime.utcnow())
-        )
+        # Skip update if summarization failed
+        if summary or biography:
+            await db.execute(
+                """
+                INSERT INTO context_summary (user_id, summary, biography, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    summary = excluded.summary,
+                    biography = excluded.biography,
+                    updated_at = excluded.updated_at
+                """,
+                (user_id, summary, biography, datetime.utcnow())
+            )
 
-        # Залишаємо тільки останні 6 повідомлень (3 пари)
+        # Keep only the last 6 entries (3 pairs)
         keep_ids = [row[0] for row in rows[-6:]]
         placeholders = ','.join('?' for _ in keep_ids)
         await db.execute(
