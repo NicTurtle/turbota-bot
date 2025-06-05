@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
 
-from bot import start_bot
-from routers import base
-from database import init_db  # 👈 добавляем
+from .bot import start_bot
+from .routers import base
+from .database import init_db  # initialize database
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
