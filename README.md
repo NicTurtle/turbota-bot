@@ -10,7 +10,7 @@ TurbotaBot connects GPT-based intelligence with Telegram to offer 24/7 empathy-d
 
 - Asynchronous Telegram bot (aiogram)
 - GPT-4o integration for dialogue
-- SQLite for message history
+- SQLite for storing assistant info
 - FastAPI as application backend
 - Ready for future Stripe integration (donations/payments)
 

@@ -3,7 +3,7 @@ from aiogram.types import Message
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import CommandStart
 from config import TELEGRAM_TOKEN, OPENAI_API_KEY
-from services.gpt import ask_gpt, test_openai_token
+from services.gpt import ask_assistant, test_openai_token
 
 bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
@@ -27,7 +27,7 @@ async def handle_start(message: Message):
 
 @dp.message()
 async def handle_message(message: Message):
-    response = await ask_gpt(message.text)
+    response = await ask_assistant(message.from_user.id, message.text)
     await message.answer(response)
 
 async def start_bot():

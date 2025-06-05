@@ -3,9 +3,11 @@ from contextlib import asynccontextmanager
 import asyncio
 from bot import start_bot
 from routers import base
+from database import init_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()
     asyncio.create_task(start_bot())
     yield
 
