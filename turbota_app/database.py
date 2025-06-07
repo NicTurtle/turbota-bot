@@ -1,6 +1,6 @@
 import aiosqlite
 
-DB_PATH = "psychologist.db"
+DB_PATH = "data/psychologist.db"
 
 async def init_db() -> None:
     """Initialize database and ensure users table exists."""

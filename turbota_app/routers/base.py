@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from schemas.gpt import GPTRequest, GPTResponse
 from services.gpt import ask_assistant
 
 router = APIRouter()
@@ -7,9 +8,7 @@ router = APIRouter()
 async def root():
     return {"message": "TurbotaBot is running."}
 
-
-@router.post("/ask")
-async def ask(user_id: int, message: str):
-    """Return assistant reply for the given user message."""
-    reply = await ask_assistant(user_id, message)
-    return {"reply": reply}
+@router.post("/ask", response_model=GPTResponse)
+async def ask(data: GPTRequest):
+    reply = await ask_assistant(data.user_id, data.message)
+    return GPTResponse(reply = reply)
