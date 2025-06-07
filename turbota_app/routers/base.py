@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from schemas.gpt import GPTRequest, GPTResponse
-from services.gpt import ask_assistant
+from turbota_app.schemas.gpt import GPTRequest, GPTResponse
+from turbota_app.services.gpt import ask_assistant
 
 router = APIRouter()
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from openai import AsyncOpenAI
-from config import config
-from database import get_db
+from turbota_app.config import config
+from turbota_app.database import get_db
 
 client = AsyncOpenAI(api_key=config.OPENAI_API_KEY)
 

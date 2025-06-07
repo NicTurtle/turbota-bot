@@ -1,12 +1,9 @@
-import pathlib
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
-from bot import start_bot
-from routers import base
-from database import init_db
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
+from turbota_app.bot import start_bot
+from turbota_app.routers import base
+from turbota_app.database import init_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
