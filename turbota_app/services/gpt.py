@@ -34,7 +34,7 @@ async def _get_or_create(user_id: int) -> tuple[str, str]:
         assistant = await client.beta.assistants.create(
             name="TurbotaBot",
             instructions=SYSTEM_INSTRUCTIONS,
-            model="gpt-4.1-mini",
+            model="gpt-4o",
         )
         thread = await client.beta.threads.create()
         await conn.execute(
@@ -47,7 +47,9 @@ async def _get_or_create(user_id: int) -> tuple[str, str]:
         await conn.close()
 
 async def ask_assistant(user_id: int, message: str) -> str:
+
     """Send a message to the user's assistant and return the latest reply."""
+
     try:
         assistant_id, thread_id = await _get_or_create(user_id)
 
@@ -62,7 +64,6 @@ async def ask_assistant(user_id: int, message: str) -> str:
         run = await client.beta.threads.runs.create(
             thread_id=thread_id,
             assistant_id=assistant_id,
-            temperature=1,
             max_completion_tokens=3000,
         )
 

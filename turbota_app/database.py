@@ -1,9 +1,10 @@
+import os
 import aiosqlite
 
-DB_PATH = "tmp/psychologist.db"
+DB_PATH = os.getenv("PSYCHO_DB", "/tmp/psychologist.db")  # ✅ теперь контролируемо
 
 async def init_db() -> None:
-    """Initialize database and ensure users table exists."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)  # ✅ создаст /tmp если надо
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             """
@@ -18,7 +19,9 @@ async def init_db() -> None:
         await db.commit()
 
 async def get_db() -> aiosqlite.Connection:
-    """Return an aiosqlite connection."""
     conn = await aiosqlite.connect(DB_PATH)
     conn.row_factory = aiosqlite.Row
+#todo remove
+    print(f"[DB INIT] using {DB_PATH}")
+
     return conn
