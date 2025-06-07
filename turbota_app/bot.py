@@ -2,8 +2,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import Message
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.filters import CommandStart
-from config import config
-from services.gpt import ask_assistant
+from turbota_app.config import config
+from turbota_app.services.gpt import ask_assistant
 
 bot = Bot(token=config.TELEGRAM_TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
