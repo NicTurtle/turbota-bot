@@ -34,7 +34,8 @@ async def _get_or_create(user_id: int) -> tuple[str, str]:
         assistant = await client.beta.assistants.create(
             name="TurbotaBot",
             instructions=SYSTEM_INSTRUCTIONS,
-            model="gpt-4o",
+            temperature=0.5,
+            model="gpt-4o-mini",
         )
         thread = await client.beta.threads.create()
         await conn.execute(
